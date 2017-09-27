@@ -5,7 +5,7 @@ import io.circe.parser._
 import io.circe.syntax._
 import java.io.{InputStream, OutputStream}
 
-object Encoding {
+private[awslambda] trait Encoding {
   def input[A](is: InputStream)(implicit decoder: Decoder[A]): Either[Error, A] = {
     val t = decode[A](scala.io.Source.fromInputStream(is).mkString)
     is.close()

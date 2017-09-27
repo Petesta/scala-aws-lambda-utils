@@ -6,9 +6,10 @@ import java.io.{InputStream, OutputStream}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 
-abstract class Handler[A, B](implicit decoder: Decoder[A], encoder: Encoder[B]) extends RequestStreamHandler {
-  import Encoding._
-
+abstract class Handler[A, B](
+  implicit decoder: Decoder[A],
+  encoder: Encoder[B]
+) extends RequestStreamHandler with Encoding {
   protected def handler(input: A, context: Context): B
 
   def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit =
