@@ -8,9 +8,9 @@ import scala.concurrent.duration.{Duration, MILLISECONDS}
 
 abstract class Handler[A, B](
   implicit decoder: Decoder[A],
-  encoder: Encoder[B]
+  encoder: Encoder[Response[B]]
 ) extends RequestStreamHandler with Encoding {
-  protected def handler(input: A, context: Context): B
+  protected def handler(input: A, context: Context): Response[B]
 
   def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit =
     input(is).right.flatMap(data => output(handler(data, context), os)) match {
@@ -23,12 +23,12 @@ abstract class Handler[A, B](
 
 abstract class FutureHandler[A, B](time: Option[Duration] = None)(
   implicit decoder: Decoder[A],
-  encoder: Encoder[B],
+  encoder: Encoder[Response[B]],
   ec: ExecutionContext
 ) extends Handler[A, B] {
-  protected def handlerFuture(input: A, context: Context): Future[B]
+  protected def handlerFuture(input: A, context: Context): Future[Response[B]]
 
-  protected def handleRequest(input: A, context: Context): B =
+  protected def handleRequest(input: A, context: Context): Response[B] =
     Await.result(
       handlerFuture(input, context),
       time.getOrElse(Duration(context.getRemainingTimeInMillis().toLong, MILLISECONDS))
