@@ -28,19 +28,17 @@ abstract class FutureHandler[A, B](time: Option[Duration] = None)(
 ) extends Handler[A, B] {
   protected def handlerFuture(input: A, context: Context): Future[Response[B]]
 
-  override def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit = {
-    val data = in(is).right.flatMap { json =>
+  override def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit =
+    in(is).right.flatMap { json =>
       val result = Await.result(
         handlerFuture(json, context),
         time.getOrElse(Duration(context.getRemainingTimeInMillis().toLong, MILLISECONDS))
       )
       out(result, os)
-    }
-    data match {
+    } match {
       case Left(_) =>
         ()
       case Right(_) =>
         ()
     }
-  }
 }
