@@ -14,16 +14,9 @@ private[awslambda] trait Encoding {
     t
   }
 
-<<<<<<< Updated upstream
-  def out[A](
-    response: Response[A],
-    os: OutputStream
-  )(implicit encoder: Encoder[Response[A]]): Either[Exception, Response[A]] =
-=======
-  def output[A](response: Response[A], os: OutputStream)(
+  def out[A](response: Response[A], os: OutputStream)(
     implicit encoder: Encoder[Response[A]]
   ): Either[Exception, Response[A]] =
->>>>>>> Stashed changes
     try {
       os.write(response.asJson.noSpaces.getBytes("UTF-8"))
       Right(response)
