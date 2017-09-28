@@ -13,7 +13,7 @@ abstract class Handler[A, B](
   protected def handler(input: A, context: Context): Response[B]
 
   def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit =
-    input(is).right.flatMap(data => output(handler(data, context), os)) match {
+    in(is).right.flatMap(data => out(handler(data, context), os)) match {
       case Left(_) =>
         ()
       case Right(_) =>
@@ -28,9 +28,19 @@ abstract class FutureHandler[A, B](time: Option[Duration] = None)(
 ) extends Handler[A, B] {
   protected def handlerFuture(input: A, context: Context): Future[Response[B]]
 
-  protected def handleRequest(input: A, context: Context): Response[B] =
-    Await.result(
-      handlerFuture(input, context),
-      time.getOrElse(Duration(context.getRemainingTimeInMillis().toLong, MILLISECONDS))
-    )
+  override def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit = {
+    val data = in(is).right.flatMap { json =>
+      val result = Await.result(
+        handlerFuture(json, context),
+        time.getOrElse(Duration(context.getRemainingTimeInMillis().toLong, MILLISECONDS))
+      )
+      out(result, os)
+    }
+    data match {
+      case Left(_) =>
+        ()
+      case Right(_) =>
+        ()
+    }
+  }
 }

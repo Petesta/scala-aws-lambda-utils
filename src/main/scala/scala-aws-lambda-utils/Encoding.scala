@@ -8,13 +8,13 @@ import java.io.{InputStream, OutputStream}
 final case class Response[A](statusCode: Int, body: A)
 
 private[awslambda] trait Encoding {
-  def input[A](is: InputStream)(implicit decoder: Decoder[A]): Either[Error, A] = {
+  def in[A](is: InputStream)(implicit decoder: Decoder[A]): Either[Error, A] = {
     val t = decode[A](scala.io.Source.fromInputStream(is).mkString)
     is.close()
     t
   }
 
-  def output[A](
+  def out[A](
     response: Response[A],
     os: OutputStream
   )(implicit encoder: Encoder[Response[A]]): Either[Exception, Response[A]] =
