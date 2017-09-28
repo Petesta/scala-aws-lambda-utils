@@ -1,19 +1,20 @@
 package io.github.petesta.awslambda
 
-import com.amazonaws.services.lambda.runtime.{Context, RequestStreamHandler}
-import io.circe.{Decoder, Encoder}
-import java.io.{InputStream, OutputStream}
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.concurrent.duration.{Duration, MILLISECONDS}
+import com.amazonaws.services.lambda.runtime.{ Context, RequestStreamHandler }
+import io.circe.{ Decoder, Encoder }
+import java.io.{ InputStream, OutputStream }
+import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.concurrent.duration.{ Duration, MILLISECONDS }
 
-abstract class Handler[A, B](
+abstract class Handler[A, B, C](error: Response[C])(
   implicit decoder: Decoder[A],
-  encoder: Encoder[Response[B]]
+  encoder: Encoder[Response[B]],
+  errorEncoder: Encoder[Response[C]]
 ) extends RequestStreamHandler with Encoding {
   protected def handler(input: A, context: Context): Response[B]
 
   def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit =
-    input(is).right.flatMap(data => output(handler(data, context), os)) match {
+    in(is).right.flatMap(data => out(handler(data, context), error, os)) match {
       case Left(_) =>
         ()
       case Right(_) =>
@@ -21,16 +22,25 @@ abstract class Handler[A, B](
     }
 }
 
-abstract class FutureHandler[A, B](time: Option[Duration] = None)(
+abstract class FutureHandler[A, B, C](error: Response[C], time: Option[Duration] = None)(
   implicit decoder: Decoder[A],
   encoder: Encoder[Response[B]],
+  errorEncoder: Encoder[Response[C]],
   ec: ExecutionContext
-) extends Handler[A, B] {
-  protected def handlerFuture(input: A, context: Context): Future[Response[B]]
+) extends RequestStreamHandler with Encoding {
+  protected def handler(input: A, context: Context): Future[Response[B]]
 
-  protected def handleRequest(input: A, context: Context): Response[B] =
-    Await.result(
-      handlerFuture(input, context),
-      time.getOrElse(Duration(context.getRemainingTimeInMillis().toLong, MILLISECONDS))
-    )
+  def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit =
+    in(is).right.flatMap { json =>
+      val result = Await.result(
+        handler(json, context),
+        time.getOrElse(Duration(context.getRemainingTimeInMillis().toLong, MILLISECONDS))
+      )
+      out(result, error, os)
+    } match {
+      case Left(_) =>
+        ()
+      case Right(_) =>
+        ()
+    }
 }
