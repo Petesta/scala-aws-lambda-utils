@@ -12,6 +12,7 @@ libraryDependencies += "io.github.petesta" %% "scala-aws-lambda-utils" % "0.1.1"
 ## Examples
 ```scala
 import io.github.petesta.awslambda._
+import scala.concurrent.Future
 
 final case class Request(data: String)
 final case class Person(name: String)
@@ -29,7 +30,7 @@ class RequestHandler extends Handler[Request, Person] {
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
 class FutureRequestHandler extends FutureHandler[Request, Person] {
   def handler(request: Request, context: Context): Future[Response] =
-    Response(200, Person(request.data))
+    Future.successful(Response(200, Person(request.data)))
 }
 ```
 
