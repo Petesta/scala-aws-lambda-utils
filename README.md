@@ -28,7 +28,7 @@ class RequestHandler extends Handler[Request, Person] {
 //   input => { "data": "" }
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
 class FutureRequestHandler extends FutureHandler[Request, Person] {
-  def handler(request: Request, context: Context): Response =
+  def handler(request: Request, context: Context): Future[Response] =
     Response(200, Person(request.data))
 }
 ```
