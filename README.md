@@ -17,10 +17,12 @@ import scala.concurrent.Future
 final case class Request(data: String)
 final case class Person(name: String)
 
+val error = Response(500, "ERR: Processing input")
+
 // NOTE:
 //   input => { "data": "" }
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
-class RequestHandler extends Handler[Request, Person] {
+class RequestHandler(error) extends Handler[Request, Person, Error] {
   def handler(request: Request, context: Context): Response =
     Response(200, Person(request.data))
 }
@@ -28,7 +30,7 @@ class RequestHandler extends Handler[Request, Person] {
 // NOTE:
 //   input => { "data": "" }
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
-class FutureRequestHandler extends FutureHandler[Request, Person] {
+class FutureRequestHandler(error) extends FutureHandler[Request, Person, Error] {
   def handler(request: Request, context: Context): Future[Response] =
     Future.successful(Response(200, Person(request.data)))
 }
