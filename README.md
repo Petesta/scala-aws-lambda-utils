@@ -38,8 +38,9 @@ class FutureRequestHandler(error) extends FutureHandler[Request, Person, Error] 
 ```
 
 #### NOTE:
-* The response must contain `statusCode` and `body` if you use API Gateway. Otherwise, you'll run into an `Internal Server Error`.
+* The response must contain `statusCode` and `body` if you use [API Gateway]. Otherwise, you'll run into an `Internal Server Error`.
 * Invoking `serverless` from the command line will return the response appropriately even without `statusCode` and `body`.
 
+[API Gateway]: https://aws.amazon.com/api-gateway/
 [AWS Lambda]: https://aws.amazon.com/lambda/
 [Circe]: https://circe.github.io/circe/
