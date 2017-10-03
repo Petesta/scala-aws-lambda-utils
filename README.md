@@ -17,8 +17,6 @@ import scala.concurrent.Future
 final case class Request(data: String)
 final case class Person(name: String)
 
-val error = Response(500, Error("ERR: ", "Malformed input"))
-
 // NOTE:
 //   input => { "data": "" }
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
