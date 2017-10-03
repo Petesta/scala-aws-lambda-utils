@@ -52,10 +52,4 @@ abstract class FutureHandler[A, B](time: Option[Duration] = None)(
         out(result, os)
         ()
     }
-    // match {
-    //   case Left(_) =>
-    //     ()
-    //   case Right(_) =>
-    //     ()
-    // }
 }
