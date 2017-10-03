@@ -23,16 +23,16 @@ val error = Response(500, Error("ERR: ", "Malformed input"))
 // NOTE:
 //   input => { "data": "" }
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
-class RequestHandler(error) extends Handler[Request, Person, Error] {
-  def handler(request: Request, context: Context): Response =
+class RequestHandler extends Handler[Request, Person] {
+  def handler(request: Request, context: Context): Response[Person] =
     Response(200, Person(request.data))
 }
 
 // NOTE:
 //   input => { "data": "" }
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
-class FutureRequestHandler(error) extends FutureHandler[Request, Person, Error] {
-  def handler(request: Request, context: Context): Future[Response] =
+class FutureRequestHandler extends FutureHandler[Request, Person] {
+  def handler(request: Request, context: Context): Future[Response[Person]] =
     Future.successful(Response(200, Person(request.data)))
 }
 ```
