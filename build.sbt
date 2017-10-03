@@ -8,15 +8,20 @@ scalaVersion := "2.11.11"
 
 description := "AWS Lambda utils"
 
+val aws = "com.amazonaws"
+val awsVersion = "1.1.0"
 val circe = "io.circe"
 val circeVersion = "0.8.0"
 
 libraryDependencies ++= Seq(
-  "com.amazonaws" % "aws-lambda-java-core" % "1.1.0",
+  aws % "aws-lambda-java-core" % awsVersion,
+  aws % "aws-lambda-java-events" % awsVersion % Test,
   circe %% "circe-core" % circeVersion,
   circe %% "circe-generic" % circeVersion,
   circe %% "circe-java8" % circeVersion,
-  circe %% "circe-parser" % circeVersion
+  circe %% "circe-parser" % circeVersion,
+  "org.mockito" % "mockito-core" % "2.10.0" % Test,
+  "org.scalatest" %% "scalatest" % "3.0.2" % Test
 )
 
 val yWarnUnusedImport = "-Ywarn-unused-import"
