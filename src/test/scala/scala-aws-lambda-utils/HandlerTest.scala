@@ -3,7 +3,7 @@ package io.github.petesta.awslambda
 import AwsLambda.BaseHandler
 import io.circe._
 import io.circe.generic.auto._
-import io.circe.generic.JsonCodec
+// import io.circe.generic.JsonCodec
 import io.circe.generic.semiauto._
 // import io.circe.parser._
 // import io.circe.syntax._
@@ -18,13 +18,13 @@ object AwsLambda {
 
   final case class Request(body: String)
 
-  @JsonCodec final case class ClientError(message: String) extends HandlerError
+  final case class ClientError(message: String) extends HandlerError
 
   implicit val cencoder: Encoder[Response[ClientError]] = deriveEncoder[Response[ClientError]]
 
-  class BaseHandler extends Handler[Request, HandlerError, Output] {
+  class BaseHandler extends Handler[Request, ClientError, Output] {
     // implicit val handlerErrDecoder: Encoder[Response[ClientError]] = deriveEncoder[Response[ClientError]]
-    def handle(request: Request): Either[Response[HandlerError], Response[Output]] =
+    def handle(request: Either[HandlerError, Request]): Either[Response[HandlerError], Response[Output]] =
       if (true) Right(Response(200, Output(request.body)))
       else Left(Response(400, ClientError("")))
   }
