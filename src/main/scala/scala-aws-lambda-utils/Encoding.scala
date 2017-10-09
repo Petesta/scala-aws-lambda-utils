@@ -1,6 +1,7 @@
 package io.github.petesta.awslambda
 
 import io.circe.{ Decoder, Encoder }
+// import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
 import java.io.{ InputStream, OutputStream }
@@ -10,7 +11,7 @@ trait HandlerError
 
 final case class CirceParseError(message: String) extends HandlerError
 
-final case class Response[A](statusCode: Int, body: A)
+final case class Response[+A](statusCode: Int, body: A)
 
 final case class OutputStreamError(message: String) extends HandlerError
 
