@@ -11,26 +11,44 @@ libraryDependencies += "io.github.petesta" %% "scala-aws-lambda-utils" % "0.0.1"
 
 ## Examples
 ```scala
+import io.circe._
+import io.circe.generic.auto._
+import io.circe.generic.semiauto._
 import io.github.petesta.awslambda._
 import scala.concurrent.Future
 
 final case class Request(data: String)
 final case class Person(name: String)
+final case class ClientError(error: String) extends HandlerError
+
+implicit val cencoder: Encoder[Response[ClientError]] = deriveEncoder[Response[ClientError]]
 
 // NOTE:
 //   input => { "data": "" }
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
-class RequestHandler extends Handler[Request, Person] {
-  def handler(request: Request, context: Context): Response[Person] =
-    Response(200, Person(request.data))
+class RequestHandler extends Handler[Request, ClientError, Person] {
+  def handler(request: Either[HandlerError, Request]): Either[Response[ClientError], Response[Output]] =
+    request match {
+      case Left(_) =>
+        Left(Response(400, ClientError("custom error message")))
+      case Right(_) =>
+        Right(Response(200, Person("Pete")))
+    }
 }
 
 // NOTE:
 //   input => { "data": "" }
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
-class FutureRequestHandler extends FutureHandler[Request, Person] {
-  def handler(request: Request, context: Context): Future[Response[Person]] =
-    Future.successful(Response(200, Person(request.data)))
+class FutureBaseHandler(
+  time: Option[Duration] = None
+) extends FutureHandler[Request, ClientError, Person](time) {
+  def handle(request: Either[HandlerError, Request]): Future[Either[Response[ClientError], Response[Output]]] =
+    request match {
+      case Left(_) =>
+        Future.successful(Left(Response(400, ClientError("custom error message"))))
+      case Right(_) =>
+        Future.successful(Right(Response(200, Person("Pete"))))
+	}
 }
 ```
 
