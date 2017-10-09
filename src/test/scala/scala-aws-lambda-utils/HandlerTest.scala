@@ -20,16 +20,20 @@ object AwsLambda {
 
   final case class ClientError(message: String) extends HandlerError
 
+  final case class FutureError(message: String) extends HandlerError
+
   implicit val cencoder: Encoder[Response[ClientError]] = deriveEncoder[Response[ClientError]]
 
-  class BaseHandler extends Handler[Request, ClientError, Output] {
-    def handle(request: Either[HandlerError, Request]): Either[Response[ClientError], Response[Output]] =
-      request match {
-        case Left(_) =>
-          Left(Response(400, ClientError("")))
-        case Right(_) =>
-          Right(Response(200, Output("")))
-      }
+  class BaseHandler extends Handler[Request, HandlerError, Output] {
+    def handle(request: Either[HandlerError, Request]): Either[Response[FutureError], Response[Output]] =
+      if (true)
+        request match {
+          case Left(_) =>
+            Left(Response(400, ClientError("")))
+          case Right(_) =>
+            Right(Response(200, Output("")))
+        }
+      else Left(Response(400, FutureError("")))
   }
 }
 
@@ -41,7 +45,7 @@ class HandlerTest extends FunSuite with Matchers with MockitoSugar {
 
     new BaseHandler().handleRequest(is, os, mock[Context])
 
-    os.toString should equal("""{"statusCode":200,"body":{"message":"hello"}}""")
+    os.toString should equal("""{"statusCode":200,"body":{"message":""}}""")
   }
 
   test("should handle request unsuccessfully") {
@@ -51,6 +55,7 @@ class HandlerTest extends FunSuite with Matchers with MockitoSugar {
 
     new BaseHandler().handleRequest(is, os, mock[Context])
 
+    println(os.toString)
     os.toString should equal("""{"statusCode":400,"body":"DecodingFailure(Attempt to decode value on failed cursor, List(DownField(body)))"}""")
   }
 }

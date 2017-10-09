@@ -31,6 +31,9 @@ private[awslambda] trait Encoding {
     try {
       response match {
         case l @ Left(error) =>
+          println("hello")
+          println(error)
+          println("hello")
           os.write(error.asJson.noSpaces.getBytes("UTF-8"))
           l
         case r @ Right(success) =>
