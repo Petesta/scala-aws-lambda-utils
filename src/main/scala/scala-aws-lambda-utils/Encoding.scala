@@ -24,9 +24,9 @@ private[awslambda] trait Encoding {
 
   def out[A, B <: HandlerError](response: Either[Response[B], Response[A]], os: OutputStream)(
     implicit encoder: Encoder[Response[A]],
-    doutputStreamErrDecoder: Encoder[Response[B]]
-    // sdoutputStreamErrDecoder: Encoder[Response[OutputStreamError]]
-  ): Either[Response[B], Response[A]] =
+    doutputStreamErrDecoder: Encoder[Response[B]],
+    sdoutputStreamErrDecoder: Encoder[Response[OutputStreamError]]
+  ): Either[Response[HandlerError], Response[A]] =
     try {
       response match {
         case l @ Left(error) =>
@@ -36,11 +36,11 @@ private[awslambda] trait Encoding {
           os.write(success.asJson.noSpaces.getBytes("UTF-8"))
           r
       }
-    // } catch {
-      // case e: Exception =>
-      //   val error = Response(500, OutputStreamError(e.toString))
-      //   os.write(error.asJson.noSpaces.getBytes("UTF-8"))
-      //   Left(error)
+    } catch {
+      case e: Exception =>
+        val error = Response(500, OutputStreamError(e.toString))
+        os.write(error.asJson.noSpaces.getBytes("UTF-8"))
+        Left(error)
     } finally {
       os.close()
     }
