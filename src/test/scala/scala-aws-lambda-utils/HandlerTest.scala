@@ -23,7 +23,7 @@ object AwsLambda {
   implicit val cencoder: Encoder[Response[ClientError]] = deriveEncoder[Response[ClientError]]
 
   class BaseHandler extends Handler[Request, ClientError, Output] {
-    def handle(request: Either[HandlerError, Request]): Either[Response[HandlerError], Response[Output]] =
+    def handle(request: Either[HandlerError, Request]): Either[Response[ClientError], Response[Output]] =
       request match {
         case Left(_) =>
           Left(Response(400, ClientError("")))
