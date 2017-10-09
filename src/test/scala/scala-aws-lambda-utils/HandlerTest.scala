@@ -1,7 +1,12 @@
 package io.github.petesta.awslambda
 
 import AwsLambda.BaseHandler
+import io.circe._
 import io.circe.generic.auto._
+// import io.circe.generic.JsonCodec
+import io.circe.generic.semiauto._
+// import io.circe.parser._
+// import io.circe.syntax._
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.util.StringInputStream
 import java.io.ByteArrayOutputStream
@@ -13,9 +18,18 @@ object AwsLambda {
 
   final case class Request(body: String)
 
-  class BaseHandler extends Handler[Request, Output] {
-    def handle(request: Request): Response[Output] =
-      Response(200, Output(request.body))
+  final case class ClientError(message: String) extends HandlerError
+
+  implicit val cencoder: Encoder[Response[ClientError]] = deriveEncoder[Response[ClientError]]
+
+  class BaseHandler extends Handler[Request, ClientError, Output] {
+    def handle(request: Either[HandlerError, Request]): Either[Response[ClientError], Response[Output]] =
+      request match {
+        case Left(_) =>
+          Left(Response(400, ClientError("")))
+        case Right(_) =>
+          Right(Response(200, Output("")))
+      }
   }
 }
 
