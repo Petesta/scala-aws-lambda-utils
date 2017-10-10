@@ -17,8 +17,7 @@ abstract class Handler[A, C <: HandlerError, B](
 
   def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit = {
     val validJson = in(is)
-    val response = handle(validJson)
-    out(validJson, response, os)
+    out(validJson, handle(validJson), os)
     ()
   }
 }
@@ -35,9 +34,8 @@ abstract class FutureHandler[A, C <: HandlerError, B](time: Option[Duration] = N
 
   def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit = {
     val validJson = in(is)
-    val response = handle(validJson)
     val result = Await.result(
-      response,
+      handle(validJson),
       time.getOrElse(Duration(context.getRemainingTimeInMillis().toLong, MILLISECONDS))
     )
     out(validJson, result, os)
