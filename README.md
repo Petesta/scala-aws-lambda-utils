@@ -43,11 +43,11 @@ class FutureBaseHandler(
   time: Option[Duration] = None
 ) extends FutureHandler[Request, ClientError, Person](time) {
   def handle(request: Either[HandlerError, Request]): Future[Either[Response[ClientError], Response[Output]]] =
-	request match {
-	  case Left(_) =>
-		Future.successful(Left(Response(400, ClientError("custom error message"))))
-	  case Right(_) =>
-		Future.successful(Right(Response(200, Person("Pete"))))
+    request match {
+      case Left(_) =>
+        Future.successful(Left(Response(400, ClientError("custom error message"))))
+      case Right(_) =>
+        Future.successful(Right(Response(200, Person("Pete"))))
 	}
 }
 ```
