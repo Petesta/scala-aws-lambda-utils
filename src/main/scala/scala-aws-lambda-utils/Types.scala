@@ -1,9 +1,9 @@
 package io.github.petesta.awslambda
 
-trait HandlerError
+trait ApiGatewayResponse
 
-final case class CirceParseError(error: String) extends HandlerError
+final case class CirceParseError(error: String) extends ApiGatewayResponse
 
-final case class OutputStreamError(error: String) extends HandlerError
+final case class GenericError(error: String) extends ApiGatewayResponse
 
-final case class Response[+A](statusCode: Int, body: A)
+final case class Response[A](statusCode: Int, body: A)

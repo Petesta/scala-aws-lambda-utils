@@ -6,39 +6,52 @@ import java.io.{ InputStream, OutputStream }
 import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.concurrent.duration.{ Duration, MILLISECONDS }
 
-abstract class Handler[A, C <: HandlerError, B](
+abstract class Handler[A, B](
   implicit decoder: Decoder[A],
-  bEncoder: Encoder[Response[B]],
-  cEncoder: Encoder[Response[C]],
-  circeParseErrEncoder: Encoder[Response[CirceParseError]],
-  outputStreamErrDecoder: Encoder[Response[OutputStreamError]]
+  encoderA: Encoder[A],
+  encoderB: Encoder[B],
+  encoderReponse: Encoder[Response[B]],
+  encoderCirceParse: Encoder[Response[CirceParseError]],
+  encoderGeneric: Encoder[Response[GenericError]]
 ) extends RequestStreamHandler with Encoding {
-  protected def handle(input: Either[HandlerError, A]): Either[Response[C], Response[B]]
+  protected def handle(input: A): Response[B]
 
   def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit = {
-    val validJson = in(is)
-    out(validJson, handle(validJson), os)
+    in(is) match {
+      case Left(err) =>
+        error(err, os)
+      case Right(json) =>
+        val handledJson = handle(json)
+        out(handledJson, os)
+    }
     ()
   }
 }
 
-abstract class FutureHandler[A, C <: HandlerError, B](time: Option[Duration] = None)(
+abstract class FutureHandler[A, B](
+  time: Option[Duration] = None
+)(
   implicit decoder: Decoder[A],
-  bEncoder: Encoder[Response[B]],
-  cEncoder: Encoder[Response[C]],
-  circeParseErrEncoder: Encoder[Response[CirceParseError]],
-  outputStreamErrDecoder: Encoder[Response[OutputStreamError]],
+  encoderA: Encoder[A],
+  encoderB: Encoder[B],
+  encoderResponse: Encoder[Response[B]],
+  encoderCirceParse: Encoder[Response[CirceParseError]],
+  encoderGeneric: Encoder[Response[GenericError]],
   ec: ExecutionContext
 ) extends RequestStreamHandler with Encoding {
-  protected def handle(input: Either[HandlerError, A]): Future[Either[Response[C], Response[B]]]
+  protected def handle(input: A): Future[Response[B]]
 
   def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit = {
     val validJson = in(is)
-    val result = Await.result(
-      handle(validJson),
-      time.getOrElse(Duration(context.getRemainingTimeInMillis().toLong, MILLISECONDS))
-    )
-    out(validJson, result, os)
-    ()
+    validJson match {
+      case Left(err) =>
+        error(err, os)
+      case Right(json) =>
+        val result = Await.result(
+          handle(json),
+          time.getOrElse(Duration(context.getRemainingTimeInMillis().toLong, MILLISECONDS))
+        )
+        out(result, os)
+    }
   }
 }

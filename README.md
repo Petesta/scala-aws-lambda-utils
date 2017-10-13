@@ -17,23 +17,16 @@ import io.circe.generic.semiauto._
 import io.github.petesta.awslambda._
 import scala.concurrent.Future
 
-final case class Request(data: String)
-final case class Person(name: String)
-final case class ClientError(error: String) extends HandlerError
+final case class Request(body: String)
 
-implicit val cencoder: Encoder[Response[ClientError]] = deriveEncoder[Response[ClientError]]
+final case class Output(message: String)
 
 // NOTE:
-//   input => { "data": "" }
+//   input => { "body": "" }
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
-class RequestHandler extends Handler[Request, ClientError, Person] {
-  def handler(request: Either[HandlerError, Request]): Either[Response[ClientError], Response[Output]] =
-    request match {
-      case Left(_) =>
-        Left(Response(400, ClientError("custom error message")))
-      case Right(_) =>
-        Right(Response(200, Person("Pete")))
-    }
+class BaseHandler extends Handler[Request, Output] {
+  def handle(input: Request): Response[Output] =
+    Response(200, Output(""))
 }
 
 // NOTE:
@@ -41,14 +34,9 @@ class RequestHandler extends Handler[Request, ClientError, Person] {
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
 class FutureBaseHandler(
   time: Option[Duration] = None
-) extends FutureHandler[Request, ClientError, Person](time) {
-  def handle(request: Either[HandlerError, Request]): Future[Either[Response[ClientError], Response[Output]]] =
-    request match {
-      case Left(_) =>
-        Future.successful(Left(Response(400, ClientError("custom error message"))))
-      case Right(_) =>
-        Future.successful(Right(Response(200, Person("Pete"))))
-	}
+) extends FutureHandler[Request, Output](time) {
+  def handle(input: Request): Future[Response[Output]] =
+    Future.successful(Response(200, Output("")))
 }
 ```
 
