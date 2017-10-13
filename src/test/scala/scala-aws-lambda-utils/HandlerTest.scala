@@ -1,9 +1,9 @@
 package io.github.petesta.awslambda
 
 import AwsLambda.{ BaseHandler, FutureBaseHandler }
-import io.circe.generic.auto._
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.util.StringInputStream
+import io.circe.generic.auto._
 import java.io.ByteArrayOutputStream
 import org.scalatest.{ FunSuite, Matchers }
 import org.scalatest.mockito.MockitoSugar
