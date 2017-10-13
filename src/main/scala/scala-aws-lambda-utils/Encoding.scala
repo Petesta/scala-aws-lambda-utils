@@ -14,7 +14,10 @@ private[awslambda] trait Encoding {
     decodedJson
   }
 
-  def error(err: Error, os: OutputStream)(implicit encoder: Encoder[Response]): Unit =
+  def error(err: Error, os: OutputStream)(
+    implicit encoderCirceParse: Encoder[Response[CirceParseError]],
+    encoderGeneric: Encoder[Response[GenericError]]
+  ): Unit =
     try {
       val response = Response(400, CirceParseError(err.toString))
       os.write(response.asJson.noSpaces.getBytes("UTF-8"))
@@ -24,9 +27,9 @@ private[awslambda] trait Encoding {
         os.write(response.asJson.noSpaces.getBytes("UTF-8"))
     }
 
-  def out[A <: ApiGatewayResponse](input: A, os: OutputStream)(
+  def out[A](input: A, os: OutputStream)(
     implicit encoder: Encoder[A],
-    responseEncoder: Encoder[Response]
+    encoderGenericError: Encoder[Response[GenericError]]
   ): Unit =
     try {
       os.write(input.asJson.noSpaces.getBytes("UTF-8"))

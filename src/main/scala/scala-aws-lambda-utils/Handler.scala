@@ -6,13 +6,15 @@ import java.io.{ InputStream, OutputStream }
 import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.concurrent.duration.{ Duration, MILLISECONDS }
 
-abstract class Handler[A <: ApiGatewayResponse, B <: ApiGatewayResponse](
+abstract class Handler[A, B](
   implicit decoder: Decoder[A],
   encoderA: Encoder[A],
   encoderB: Encoder[B],
-  encoderReponse: Encoder[Response]
+  encoderReponse: Encoder[Response[B]],
+  encoderCirceParse: Encoder[Response[CirceParseError]],
+  encoderGeneric: Encoder[Response[GenericError]]
 ) extends RequestStreamHandler with Encoding {
-  protected def handle(input: A): B
+  protected def handle(input: A): Response[B]
 
   def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit = {
     in(is) match {
@@ -26,16 +28,18 @@ abstract class Handler[A <: ApiGatewayResponse, B <: ApiGatewayResponse](
   }
 }
 
-abstract class FutureHandler[A <: ApiGatewayResponse, B <: ApiGatewayResponse](
+abstract class FutureHandler[A, B](
   time: Option[Duration] = None
 )(
   implicit decoder: Decoder[A],
   encoderA: Encoder[A],
   encoderB: Encoder[B],
-  encoderResponse: Encoder[Response],
+  encoderResponse: Encoder[Response[B]],
+  encoderCirceParse: Encoder[Response[CirceParseError]],
+  encoderGeneric: Encoder[Response[GenericError]],
   ec: ExecutionContext
 ) extends RequestStreamHandler with Encoding {
-  protected def handle(input: A): Future[B]
+  protected def handle(input: A): Future[Response[B]]
 
   def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit = {
     val validJson = in(is)
