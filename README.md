@@ -11,9 +11,7 @@ libraryDependencies += "io.github.petesta" %% "scala-aws-lambda-utils" % "0.0.1"
 
 ## Examples
 ```scala
-import io.circe._
 import io.circe.generic.auto._
-import io.circe.generic.semiauto._
 import io.github.petesta.awslambda._
 import scala.concurrent.Future
 
