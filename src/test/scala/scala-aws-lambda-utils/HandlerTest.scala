@@ -21,9 +21,7 @@ object AwsLambda {
       Response(200, Output(""))
   }
 
-  class FutureBaseHandler(
-    time: Option[Duration] = None
-  ) extends FutureHandler[Request, Output](time) {
+  class FutureBaseHandler(time: Option[Duration] = None) extends FutureHandler[Request, Output](time) {
     def handle(input: Request): Future[Response[Output]] =
       Future.successful(Response(200, Output("")))
   }
