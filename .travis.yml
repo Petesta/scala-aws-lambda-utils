@@ -8,4 +8,4 @@ scala:
 jdk:
   - oraclejdk8
 
-script: "sbt  test"
+script: "sbt test"
