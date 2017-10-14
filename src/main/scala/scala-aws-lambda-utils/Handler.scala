@@ -11,7 +11,6 @@ abstract class Handler[A, B](
   encoderA: Encoder[A],
   encoderB: Encoder[B],
   encoderReponse: Encoder[Response[B]],
-  encoderCirceParse: Encoder[Response[CirceParseError]],
   encoderGeneric: Encoder[Response[GenericError]]
 ) extends RequestStreamHandler with Encoding {
   protected def handle(input: A): Response[B]
@@ -21,8 +20,7 @@ abstract class Handler[A, B](
       case Left(err) =>
         error(err, os)
       case Right(json) =>
-        val handledJson = handle(json)
-        out(handledJson, os)
+        out(handle(json), os)
     }
     ()
   }
@@ -35,7 +33,6 @@ abstract class FutureHandler[A, B](
   encoderA: Encoder[A],
   encoderB: Encoder[B],
   encoderResponse: Encoder[Response[B]],
-  encoderCirceParse: Encoder[Response[CirceParseError]],
   encoderGeneric: Encoder[Response[GenericError]],
   ec: ExecutionContext
 ) extends RequestStreamHandler with Encoding {
