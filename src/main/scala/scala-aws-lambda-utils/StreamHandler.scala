@@ -6,7 +6,7 @@ import java.io.{ InputStream, OutputStream }
 import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.concurrent.duration.{ Duration, MILLISECONDS }
 
-abstract class Handler[A, B](
+abstract class StreamHandler[A, B](
   implicit decoder: Decoder[A],
   encoderA: Encoder[A],
   encoderB: Encoder[B],
@@ -26,7 +26,7 @@ abstract class Handler[A, B](
   }
 }
 
-abstract class FutureHandler[A, B](
+abstract class FutureStreamHandler[A, B](
   time: Option[Duration] = None
 )(
   implicit decoder: Decoder[A],

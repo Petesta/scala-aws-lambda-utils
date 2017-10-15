@@ -16,18 +16,18 @@ object AwsLambda {
 
   final case class Output(message: String)
 
-  class BaseHandler extends Handler[Request, Output] {
+  class BaseHandler extends StreamHandler[Request, Output] {
     def handle(input: Request): Response[Output] =
       Response(200, Output(""))
   }
 
-  class FutureBaseHandler(time: Option[Duration] = None) extends FutureHandler[Request, Output](time) {
+  class FutureBaseHandler(time: Option[Duration] = None) extends FutureStreamHandler[Request, Output](time) {
     def handle(input: Request): Future[Response[Output]] =
       Future.successful(Response(200, Output("")))
   }
 }
 
-class HandlerTest extends FunSuite with Matchers with MockitoSugar {
+class StreamHandlerTest extends FunSuite with Matchers with MockitoSugar {
   test("should handle request successfully") {
     val json = """{ "body": "hello" }"""
     val is = new StringInputStream(json)
@@ -49,7 +49,7 @@ class HandlerTest extends FunSuite with Matchers with MockitoSugar {
   }
 }
 
-class FutureHandlerTest extends FunSuite with Matchers with MockitoSugar {
+class FutureStreamHandlerTest extends FunSuite with Matchers with MockitoSugar {
   test("should handle request successfully") {
     val json = """{ "body": "hello" }"""
     val is = new StringInputStream(json)

@@ -24,7 +24,7 @@ final case class Output(message: String)
 // NOTE:
 //   input => { "body": "" }
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
-class BaseHandler extends Handler[Request, Output] {
+class BaseHandler extends StreamHandler[Request, Output] {
   def handle(input: Request): Response[Output] =
     Response(200, Output(""))
 }
@@ -34,7 +34,7 @@ class BaseHandler extends Handler[Request, Output] {
 //   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
 class FutureBaseHandler(
   time: Option[Duration] = None
-) extends FutureHandler[Request, Output](time) {
+) extends FutureStreamHandler[Request, Output](time) {
   def handle(input: Request): Future[Response[Output]] =
     Future.successful(Response(200, Output("")))
 }
