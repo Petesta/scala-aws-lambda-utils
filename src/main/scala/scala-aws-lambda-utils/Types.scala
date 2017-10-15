@@ -1,6 +1,6 @@
 package io.github.petesta.awslambda
 
-trait ApiGatewayResponse
+sealed trait ApiGatewayResponse
 
 final case class GenericError(error: String) extends ApiGatewayResponse
 
