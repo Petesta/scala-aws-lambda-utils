@@ -1,7 +1,7 @@
 scala-aws-lambda-utils
 ======================
 
-[![Build Status](https://travis-ci.com/Petesta/scala-aws-lambda-utils.svg?branch=master)](https://travis-ci.com/Petesta/scala-aws-lambda-utils)
+[![Build Status](https://travis-ci.com/Petesta/scala-aws-lambda-utils.png)](https://travis-ci.com/Petesta/scala-aws-lambda-utils)
 
 ## Intro
 `scala-aws-lambda-utils` provides abstractions for serializing/deserializing, with [Circe], input/output with [AWS Lambda] and [API Gateway].
