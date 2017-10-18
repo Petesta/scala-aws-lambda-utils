@@ -4,7 +4,7 @@ scala-aws-lambda-utils
 [![Build Status](https://travis-ci.com/Petesta/scala-aws-lambda-utils.svg?&branch=master)](https://travis-ci.com/Petesta/scala-aws-lambda-utils)
 
 ## Intro
-`scala-aws-lambda-utils` provides abstractions for serializing/deserializing, with [Circe], input/output with [AWS Lambda].
+`scala-aws-lambda-utils` provides abstractions for serializing/deserializing, with [Circe], input/output with [AWS Lambda] and [API Gateway].
 
 ## How to use
 ```scala
@@ -23,7 +23,7 @@ final case class Output(message: String)
 
 // NOTE:
 //   input => { "body": "" }
-//   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
+//   output => { "statusCode": INTEGER, "body": OUTPUT_OBJECT }
 class BaseHandler extends StreamHandler[Request, Output] {
   def handle(input: Request): Response[Output] =
     Response(200, Output(""))
@@ -31,7 +31,7 @@ class BaseHandler extends StreamHandler[Request, Output] {
 
 // NOTE:
 //   input => { "data": "" }
-//   output => { "statusCode": INTEGER, "body": PERSON_OBJECT }
+//   output => { "statusCode": INTEGER, "body": OUTPUT_OBJECT }
 class FutureBaseHandler(
   time: Option[Duration] = None
 ) extends FutureStreamHandler[Request, Output](time) {

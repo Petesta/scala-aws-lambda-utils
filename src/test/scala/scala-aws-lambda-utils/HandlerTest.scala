@@ -18,12 +18,12 @@ object AwsLambda {
 
   class BaseHandler extends StreamHandler[Request, Output] {
     def handle(input: Request): Response[Output] =
-      Response(200, Output(""))
+      Response(200, Output(input.body))
   }
 
   class FutureBaseHandler(time: Option[Duration] = None) extends FutureStreamHandler[Request, Output](time) {
     def handle(input: Request): Future[Response[Output]] =
-      Future.successful(Response(200, Output("")))
+      Future.successful(Response(200, Output(input.body)))
   }
 }
 
@@ -35,7 +35,7 @@ class StreamHandlerTest extends FunSuite with Matchers with MockitoSugar {
 
     new BaseHandler().handleRequest(is, os, mock[Context])
 
-    os.toString should equal("""{"statusCode":200,"body":{"message":""}}""")
+    os.toString should equal("""{"statusCode":200,"body":{"message":"hello"}}""")
   }
 
   test("should handle request unsuccessfully") {
@@ -57,7 +57,7 @@ class FutureStreamHandlerTest extends FunSuite with Matchers with MockitoSugar {
 
     new FutureBaseHandler().handleRequest(is, os, mock[Context])
 
-    os.toString should equal("""{"statusCode":200,"body":{"message":""}}""")
+    os.toString should equal("""{"statusCode":200,"body":{"message":"hello"}}""")
   }
 
   test("should handle request unsuccessfully") {
