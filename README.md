@@ -26,7 +26,7 @@ final case class Output(message: String)
 //   output => { "statusCode": INTEGER, "body": OUTPUT_OBJECT }
 class BaseHandler extends StreamHandler[Request, Output] {
   def handle(input: Request): Response[Output] =
-    Response(200, Output(""))
+    Response(200, Output(input.body))
 }
 
 // NOTE:
@@ -36,7 +36,7 @@ class FutureBaseHandler(
   time: Option[Duration] = None
 ) extends FutureStreamHandler[Request, Output](time) {
   def handle(input: Request): Future[Response[Output]] =
-    Future.successful(Response(200, Output("")))
+    Future.successful(Response(200, Output(input.body)))
 }
 ```
 
