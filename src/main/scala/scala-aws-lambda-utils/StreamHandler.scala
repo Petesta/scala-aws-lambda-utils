@@ -26,9 +26,7 @@ abstract class StreamHandler[A, B](
   }
 }
 
-abstract class FutureStreamHandler[A, B](
-  time: Option[Duration] = None
-)(
+abstract class FutureStreamHandler[A, B](time: Option[Duration] = None)(
   implicit decoder: Decoder[A],
   encoderA: Encoder[A],
   encoderB: Encoder[B],
