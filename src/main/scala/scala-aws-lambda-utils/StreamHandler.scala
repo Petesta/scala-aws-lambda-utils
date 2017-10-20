@@ -15,15 +15,20 @@ abstract class StreamHandler[A, B](
 ) extends RequestStreamHandler with Encoding {
   protected def handle(input: A): Response[B]
 
-  def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit = {
-    in(is) match {
-      case Left(err) =>
-        error(err, os)
-      case Right(json) =>
-        out(handle(json), os)
+  def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit =
+    try {
+      in(is) match {
+        case Left(err) =>
+          val response = Response(400, err.toString)
+          out(response, os)
+        case Right(json) =>
+          out(handle(json), os)
+      }
+    } catch {
+      case e: Exception =>
+        val response = Response(500, e.toString)
+        out(response, os)
     }
-    ()
-  }
 }
 
 abstract class FutureStreamHandler[A, B](time: Option[Duration] = None)(
@@ -36,17 +41,22 @@ abstract class FutureStreamHandler[A, B](time: Option[Duration] = None)(
 ) extends RequestStreamHandler with Encoding {
   protected def handle(input: A): Future[Response[B]]
 
-  def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit = {
-    val validJson = in(is)
-    validJson match {
-      case Left(err) =>
-        error(err, os)
-      case Right(json) =>
-        val result = Await.result(
-          handle(json),
-          time.getOrElse(Duration(context.getRemainingTimeInMillis().toLong, MILLISECONDS))
-        )
-        out(result, os)
+  def handleRequest(is: InputStream, os: OutputStream, context: Context): Unit =
+    try {
+      in(is) match {
+        case Left(err) =>
+          val response = Response(400, err.toString)
+          out(response, os)
+        case Right(json) =>
+          val result = Await.result(
+            handle(json),
+            time.getOrElse(Duration(context.getRemainingTimeInMillis().toLong, MILLISECONDS))
+          )
+          out(result, os)
+      }
+    } catch {
+      case e: Exception =>
+        val response = Response(500, e.toString)
+        out(response, os)
     }
-  }
 }

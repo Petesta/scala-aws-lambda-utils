@@ -7,8 +7,8 @@ import io.circe.generic.auto._
 import java.io.ByteArrayOutputStream
 import org.scalatest.{ FunSuite, Matchers }
 import org.scalatest.mockito.MockitoSugar
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
 object AwsLambda {

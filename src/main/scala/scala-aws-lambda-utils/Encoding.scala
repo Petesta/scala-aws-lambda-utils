@@ -16,25 +16,6 @@ private[awslambda] trait Encoding {
     decodedJson
   }
 
-  def error(err: Error, os: OutputStream)(implicit encoder: Encoder[Response[String]]): Unit =
-    try {
-      val response = Response(400, err.toString)
-      os.write(response.asJson.noSpaces.getBytes("UTF-8"))
-    } catch {
-      case e: Exception =>
-        val response = Response(500, e.toString)
-        os.write(response.asJson.noSpaces.getBytes("UTF-8"))
-    }
-
-  def out[A](input: A, os: OutputStream)(
-    implicit encoder: Encoder[A],
-    encoderGenericError: Encoder[Response[String]]
-  ): Unit =
-    try {
-      os.write(input.asJson.noSpaces.getBytes("UTF-8"))
-    } catch {
-      case e: Exception =>
-        val response = Response(500, e.toString)
-        os.write(response.asJson.noSpaces.getBytes("UTF-8"))
-    }
+  def out[A](input: A, os: OutputStream)(implicit encoder: Encoder[A]): Unit =
+    os.write(input.asJson.noSpaces.getBytes("UTF-8"))
 }
