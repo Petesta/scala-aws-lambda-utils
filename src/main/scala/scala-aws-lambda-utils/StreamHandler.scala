@@ -11,7 +11,7 @@ abstract class StreamHandler[A, B](
   encoderA: Encoder[A],
   encoderB: Encoder[B],
   encoderReponse: Encoder[Response[B]],
-  encoderGeneric: Encoder[Response[GenericError]]
+  encoderGeneric: Encoder[Response[String]]
 ) extends RequestStreamHandler with Encoding {
   protected def handle(input: A): Response[B]
 
@@ -31,7 +31,7 @@ abstract class FutureStreamHandler[A, B](time: Option[Duration] = None)(
   encoderA: Encoder[A],
   encoderB: Encoder[B],
   encoderResponse: Encoder[Response[B]],
-  encoderGeneric: Encoder[Response[GenericError]],
+  encoderGeneric: Encoder[Response[String]],
   ec: ExecutionContext
 ) extends RequestStreamHandler with Encoding {
   protected def handle(input: A): Future[Response[B]]

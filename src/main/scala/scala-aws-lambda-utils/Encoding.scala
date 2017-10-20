@@ -6,6 +6,8 @@ import io.circe.syntax._
 import java.io.{ InputStream, OutputStream }
 import scala.io.Source
 
+final case class Response[A](statusCode: Int, body: A)
+
 private[awslambda] trait Encoding {
   def in[A](is: InputStream)(implicit decoder: Decoder[A]): Either[Error, A] = {
     val rawJson = Source.fromInputStream(is).mkString
@@ -14,25 +16,25 @@ private[awslambda] trait Encoding {
     decodedJson
   }
 
-  def error(err: Error, os: OutputStream)(implicit encoder: Encoder[Response[GenericError]]): Unit =
+  def error(err: Error, os: OutputStream)(implicit encoder: Encoder[Response[String]]): Unit =
     try {
-      val response = Response(400, GenericError(err.toString))
+      val response = Response(400, err.toString)
       os.write(response.asJson.noSpaces.getBytes("UTF-8"))
     } catch {
       case e: Exception =>
-        val response = Response(500, GenericError(e.toString))
+        val response = Response(500, e.toString)
         os.write(response.asJson.noSpaces.getBytes("UTF-8"))
     }
 
   def out[A](input: A, os: OutputStream)(
     implicit encoder: Encoder[A],
-    encoderGenericError: Encoder[Response[GenericError]]
+    encoderGenericError: Encoder[Response[String]]
   ): Unit =
     try {
       os.write(input.asJson.noSpaces.getBytes("UTF-8"))
     } catch {
       case e: Exception =>
-        val response = Response(500, GenericError(e.toString))
+        val response = Response(500, e.toString)
         os.write(response.asJson.noSpaces.getBytes("UTF-8"))
     }
 }
