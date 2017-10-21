@@ -45,7 +45,7 @@ class StreamHandlerTest extends FunSuite with Matchers with MockitoSugar {
 
     new BaseHandler().handleRequest(is, os, mock[Context])
 
-    os.toString should equal("""{"statusCode":400,"body":"DecodingFailure(Attempt to decode value on failed cursor, List(DownField(body)))"}""")
+    os.toString should equal("""{"statusCode":400,"body":{"error":"DecodingFailure(Attempt to decode value on failed cursor, List(DownField(body)))"}}""")
   }
 }
 
@@ -67,6 +67,6 @@ class FutureStreamHandlerTest extends FunSuite with Matchers with MockitoSugar {
 
     new FutureBaseHandler().handleRequest(is, os, mock[Context])
 
-    os.toString should equal("""{"statusCode":400,"body":"DecodingFailure(Attempt to decode value on failed cursor, List(DownField(body)))"}""")
+    os.toString should equal("""{"statusCode":400,"body":{"error":"DecodingFailure(Attempt to decode value on failed cursor, List(DownField(body)))"}}""")
   }
 }

@@ -32,9 +32,7 @@ class BaseHandler extends StreamHandler[Request, Output] {
 // NOTE:
 //   input => { "data": "" }
 //   output => { "statusCode": INTEGER, "body": OUTPUT_OBJECT }
-class FutureBaseHandler(
-  time: Option[Duration] = None
-) extends FutureStreamHandler[Request, Output](time) {
+class FutureBaseHandler(time: Option[Duration] = None) extends FutureStreamHandler[Request, Output](time) {
   def handle(input: Request): Future[Response[Output]] =
     Future.successful(Response(200, Output(input.body)))
 }

@@ -8,6 +8,8 @@ import scala.io.Source
 
 final case class Response[A](statusCode: Int, body: A)
 
+final case class GenericError(error: String)
+
 private[awslambda] trait Encoding {
   def in[A](is: InputStream)(implicit decoder: Decoder[A]): Either[Error, A] = {
     val rawJson = Source.fromInputStream(is).mkString

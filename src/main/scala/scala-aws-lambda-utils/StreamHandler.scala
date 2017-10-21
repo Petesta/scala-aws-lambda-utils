@@ -11,7 +11,7 @@ abstract class StreamHandler[A, B](
   encoderA: Encoder[A],
   encoderB: Encoder[B],
   encoderReponse: Encoder[Response[B]],
-  encoderGeneric: Encoder[Response[String]]
+  encoderGeneric: Encoder[Response[GenericError]]
 ) extends RequestStreamHandler with Encoding {
   protected def handle(input: A): Response[B]
 
@@ -19,14 +19,14 @@ abstract class StreamHandler[A, B](
     try {
       in(is) match {
         case Left(err) =>
-          val response = Response(400, err.toString)
+          val response = Response(400, GenericError(err.toString))
           out(response, os)
         case Right(json) =>
           out(handle(json), os)
       }
     } catch {
       case e: Exception =>
-        val response = Response(500, e.toString)
+        val response = Response(500, GenericError(e.toString))
         out(response, os)
     }
 }
@@ -36,7 +36,7 @@ abstract class FutureStreamHandler[A, B](time: Option[Duration] = None)(
   encoderA: Encoder[A],
   encoderB: Encoder[B],
   encoderResponse: Encoder[Response[B]],
-  encoderGeneric: Encoder[Response[String]],
+  encoderGeneric: Encoder[Response[GenericError]],
   ec: ExecutionContext
 ) extends RequestStreamHandler with Encoding {
   protected def handle(input: A): Future[Response[B]]
@@ -45,7 +45,7 @@ abstract class FutureStreamHandler[A, B](time: Option[Duration] = None)(
     try {
       in(is) match {
         case Left(err) =>
-          val response = Response(400, err.toString)
+          val response = Response(400, GenericError(err.toString))
           out(response, os)
         case Right(json) =>
           val result = Await.result(
@@ -56,7 +56,7 @@ abstract class FutureStreamHandler[A, B](time: Option[Duration] = None)(
       }
     } catch {
       case e: Exception =>
-        val response = Response(500, e.toString)
+        val response = Response(500, GenericError(e.toString))
         out(response, os)
     }
 }
